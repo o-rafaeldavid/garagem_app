@@ -8,12 +8,14 @@ import 'package:mqtt_client/mqtt_browser_client.dart';
 
 abstract class Topics{
   static List<String> subscribe = [
+    "userresauth-estanciunamentu4000",
     "portaestado-estanciunamentu4000",
     "alerta-estanciunamentu4000",
     "imagempedir-estanciunamentu4000"
   ];
 
   static List<String> publish = [
+    "userreqauth-estanciunamentu4000",
     "portaacao-estanciunamentu4000",
     "imagemenvia-estanciunamentu4000"
   ];

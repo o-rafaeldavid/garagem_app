@@ -46,7 +46,11 @@ class _LandingScreenState extends State<LandingScreen> {
                 ElevatedButton(
                   onPressed: () { Navigator.pushNamed(context, '/qr'); },
                   child: const Text("teste", style: TextStyle(color: Colors.black))
-                )
+                ),
+                ElevatedButton(
+                  onPressed: () { mqtt.sendMessage("manel", Topics.publish[0]); },
+                  child: const Text("teste mandar mqtt", style: TextStyle(color: Colors.black))
+                ),
               ]
             );
           } else {
