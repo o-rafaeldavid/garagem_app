@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Estanciunamentu',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFF1A1B1D),
+        scaffoldBackgroundColor: const Color(0xFF111323),
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
           primary: Colors.white,

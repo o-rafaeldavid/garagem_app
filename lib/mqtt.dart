@@ -6,18 +6,19 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 
+const globalTopic = "estanciunamentu4000";
 abstract class Topics{
   static List<String> subscribe = [
-    "userresauth-estanciunamentu4000",
-    "portaestado-estanciunamentu4000",
-    "alerta-estanciunamentu4000",
-    "imagempedir-estanciunamentu4000"
+    "userresauth-$globalTopic",
+    "portaestado-$globalTopic",
+    "alerta-$globalTopic",
+    "imagempedir-$globalTopic"
   ];
 
   static List<String> publish = [
-    "userreqauth-estanciunamentu4000",
-    "portaacao-estanciunamentu4000",
-    "imagemenvia-estanciunamentu4000"
+    "userreqauth-$globalTopic",
+    "portaacao-$globalTopic",
+    "imagemenvia-$globalTopic"
   ];
 }
 
@@ -31,9 +32,8 @@ class MQTTManager {
 
   //////////////////////////////////////////////////////
   MQTTManager() {
-    
     if(!kIsWeb){
-      client = MqttServerClient(broker, 'estanciunamentu-app');
+      client = MqttServerClient(broker, '$globalTopic-app');
       port = 1883;
     }
     else{
@@ -44,7 +44,6 @@ class MQTTManager {
     _connect();
   }
 
-  
   //////////////////////////////////////////////////////
   void _connect() async {
     client.logging(on: true);
@@ -55,7 +54,6 @@ class MQTTManager {
         client.subscribe(topic, MqttQos.exactlyOnce);
       });
   
-
       client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
         
         if (c.isNotEmpty){
@@ -66,7 +64,7 @@ class MQTTManager {
             
             if(Topics.subscribe.contains(msgTopic)){
               debugPrint("Recebido: [$msgTopic] $payload");
-              _messageController.add(payload);
+              _messageController.add("$msgTopic $payload");
             }
             else{ debugPrint("Recebido: [$msgTopic] TOPICO NEGADO | MENSAGEM: $payload"); }
           }
@@ -91,7 +89,7 @@ class MQTTManager {
   }
 
   void sendMessage(String message, String topicToSend) {
-    if(Topics.subscribe.contains(topicToSend)){
+    if(Topics.publish.contains(topicToSend)){
       final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
       builder.addString(message);
       final Uint8Buffer? payload = builder.payload;
@@ -100,7 +98,12 @@ class MQTTManager {
         debugPrint("Enviado: [$topicToSend] $message");
       }
     }
-    else{ throw Exception("O tópico $topicToSend não dá pÁ! (OH BURRO)"); }
+    else{ throw Exception("O tópico $topicToSend não dá pa ___enviares___ pÁ! (OH BURRO)"); }
+  }
+
+  void onTopicDoIt(String topicRecieved, Function fun){
+    if(Topics.subscribe.contains(topicRecieved)) fun;
+    else{ throw Exception("O tópico $topicRecieved não dá pa ___receberes___ pÁ! (OH BURRO)"); }
   }
 
   void disconnect() {

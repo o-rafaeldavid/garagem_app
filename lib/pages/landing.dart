@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:garagem_app/mqtt.dart';
+import 'package:garagem_app/widgets/navbar.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -15,25 +15,11 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /* body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget> [
-          Center(
-            child: Text(mqtt.recieved),
-          ),
-        ]
-      ) */
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(32),
-        child: Container(
-          padding: const EdgeInsets.only(top: 32),
-          child: const Column(
-            children: <Widget>[
-              Text("TESTE AAA")
-            ]
-          )
-        )
+        preferredSize: const Size.fromHeight(0),
+        child: Container()
       ),
+      bottomNavigationBar: const Navbar(),
       body: StreamBuilder<String>(
         stream: mqtt.messageStream,
         builder: (context, snapshot) {
@@ -45,7 +31,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () { Navigator.pushNamed(context, '/qr'); },
-                  child: const Text("teste", style: TextStyle(color: Colors.black))
+                  child: const Text("teste QR", style: TextStyle(color: Colors.black))
                 ),
                 ElevatedButton(
                   onPressed: () { mqtt.sendMessage("manel", Topics.publish[0]); },
