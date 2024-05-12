@@ -8,14 +8,14 @@ import 'package:mqtt_client/mqtt_browser_client.dart';
 
 const globalTopic = "estanciunamentu4000";
 abstract class Topics{
-  static List<String> subscribe = [
+  static final List<String> subscribe = [
     "userresauth-$globalTopic",
     "portaestado-$globalTopic",
     "alerta-$globalTopic",
     "imagempedir-$globalTopic"
   ];
 
-  static List<String> publish = [
+  static final List<String> publish = [
     "userreqauth-$globalTopic",
     "portaacao-$globalTopic",
     "imagemenvia-$globalTopic"

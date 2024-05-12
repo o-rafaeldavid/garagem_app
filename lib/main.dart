@@ -3,6 +3,30 @@ import 'package:flutter/services.dart';
 import 'package:garagem_app/pages/landing.dart';
 import 'package:garagem_app/pages/qr_code.dart';
 
+abstract class NavigationHelper{
+  static final List<String> routes = [
+    '/'
+    '/qr',
+  ];
+
+  static final List<Widget> widgets = [
+    const LandingScreen(),
+    const QRCodeWidget(),
+  ];
+
+  static final List<Icon> icons = [
+    const Icon(Icons.dashboard_rounded),
+    const Icon(Icons.qr_code)
+  ];
+
+  static Map<String, WidgetBuilder> createRouteMap(BuildContext context) {
+    Map<String, WidgetBuilder> routeMap = {};
+    for (int i = 0; i < routes.length; i++) {
+      routeMap[routes[i]] = (BuildContext context) => widgets[i];
+    }
+    return routeMap;
+  }
+}
 
 void main() {
   runApp(const MyApp());
@@ -44,9 +68,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const LandingScreen(),
-      routes: {
-        '/qr': (context) => const QRCodeWidget(),
-      },
+      routes: NavigationHelper.createRouteMap(context),
     );
   }
 }
