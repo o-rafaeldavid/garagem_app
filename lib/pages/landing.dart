@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:garagem_app/mqtt.dart';
+import 'package:garagem_app/widgets/appbar.dart';
 import 'package:garagem_app/widgets/navbar.dart';
+import 'package:garagem_app/widgets/round_rect.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -15,9 +17,9 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(0),
-        child: Container()
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(128),
+        child: MyAppbar(name: "GARAGE DASHBOARD")
       ),
       bottomNavigationBar: const Navbar(),
       body: StreamBuilder<String>(
@@ -37,6 +39,13 @@ class _LandingScreenState extends State<LandingScreen> {
                   onPressed: () { mqtt.sendMessage("manel", Topics.publish[0]); },
                   child: const Text("teste mandar mqtt", style: TextStyle(color: Colors.black))
                 ),
+                const RoundRect(
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Text("a")
+                  )
+                )
               ]
             );
           } else {

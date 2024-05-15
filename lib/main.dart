@@ -1,32 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:garagem_app/navigation_helper.dart';
 import 'package:garagem_app/pages/landing.dart';
-import 'package:garagem_app/pages/qr_code.dart';
-
-abstract class NavigationHelper{
-  static final List<String> routes = [
-    '/'
-    '/qr',
-  ];
-
-  static final List<Widget> widgets = [
-    const LandingScreen(),
-    const QRCodeWidget(),
-  ];
-
-  static final List<Icon> icons = [
-    const Icon(Icons.dashboard_rounded),
-    const Icon(Icons.qr_code)
-  ];
-
-  static Map<String, WidgetBuilder> createRouteMap(BuildContext context) {
-    Map<String, WidgetBuilder> routeMap = {};
-    for (int i = 0; i < routes.length; i++) {
-      routeMap[routes[i]] = (BuildContext context) => widgets[i];
-    }
-    return routeMap;
-  }
-}
 
 void main() {
   runApp(const MyApp());
@@ -46,6 +21,9 @@ class MyApp extends StatelessWidget {
       title: 'Estanciunamentu',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF111323)
+        ),
         scaffoldBackgroundColor: const Color(0xFF111323),
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
@@ -61,10 +39,14 @@ class MyApp extends StatelessWidget {
           onSurface: Colors.white
         ),
         textTheme: const TextTheme(
-        bodyLarge: TextStyle(fontSize: 16.0, color: Colors.black),
-        headlineLarge: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-          // Define more text styles as needed
-      ),
+          bodyLarge: TextStyle(fontSize: 16.0, color: Colors.black),
+          headlineLarge: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color.fromARGB(20, 255, 255, 255),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white30
+        ),
         useMaterial3: true,
       ),
       home: const LandingScreen(),

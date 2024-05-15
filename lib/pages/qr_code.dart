@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:garagem_app/widgets/appbar.dart';
+import 'package:garagem_app/widgets/navbar.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRCodeWidget extends StatefulWidget{
@@ -31,6 +33,11 @@ class _QRCodeWidgetState extends State<QRCodeWidget>{
   @override
   Widget build(BuildContext context){
     return Scaffold(
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(128),
+        child: MyAppbar(name: "SCAN QR CODE")
+      ),
+      bottomNavigationBar: const Navbar(),
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
