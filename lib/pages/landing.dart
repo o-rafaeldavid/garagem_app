@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:garagem_app/main.dart';
 import 'package:garagem_app/mqtt.dart';
 import 'package:garagem_app/widgets/appbar.dart';
 import 'package:garagem_app/widgets/navbar.dart';
@@ -18,8 +19,8 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(128),
-        child: MyAppbar(name: "GARAGE DASHBOARD")
+        preferredSize: Size.fromHeight(GlobalVars.appbarHeight),
+        child: MyAppbar(name: "GARAGE\nDASHBOARD")
       ),
       bottomNavigationBar: const Navbar(),
       body: StreamBuilder<String>(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:garagem_app/main.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyAppbar extends StatefulWidget{
   final String name;
@@ -19,13 +21,24 @@ class _MyAppbarState extends State<MyAppbar>{
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      title: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Text(name)
-        ],
-      )
+    return Row(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.fromLTRB(GlobalVars.gap, 0, GlobalVars.gap, GlobalVars.gap),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Text(
+                name,
+                textAlign: TextAlign.left,
+                style: GoogleFonts.orbitron(
+                  textStyle: TxtStyles.heading1
+                ),
+              )
+            ],
+          )
+        )
+      ]
     );
   }
 }

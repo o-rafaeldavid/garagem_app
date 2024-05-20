@@ -12,6 +12,20 @@ void main() {
   ]);
 }
 
+///////////
+///
+abstract class GlobalVars{
+  static const double appbarHeight = 148;
+  static const double gap = 24;
+}
+abstract class TxtStyles{
+  static const heading1 = TextStyle(
+    fontSize: 36, fontWeight: FontWeight.w700
+  );
+}
+///
+///////////
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
