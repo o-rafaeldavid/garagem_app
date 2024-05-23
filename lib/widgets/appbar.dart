@@ -32,7 +32,7 @@ class _MyAppbarState extends State<MyAppbar>{
                 name,
                 textAlign: TextAlign.left,
                 style: GoogleFonts.orbitron(
-                  textStyle: TxtStyles.heading1
+                  textStyle: TxtStyles.heading1(AllCores.laranja(255), 14)
                 ),
               )
             ],

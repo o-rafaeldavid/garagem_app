@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:garagem_app/main.dart';
 import 'package:garagem_app/widgets/round_rect.dart';
 import 'package:garagem_app/navigation_helper.dart';
 
@@ -20,7 +23,7 @@ class _NavbarState extends State<Navbar>{
           color: (_selectedIndex == i) ? bottomNavTheme.selectedItemColor : bottomNavTheme.unselectedItemColor,
           icon: Container(
             decoration: BoxDecoration(
-              boxShadow: (_selectedIndex == i) ? [const BoxShadow(color: Color.fromARGB(255, 240, 105, 26), blurRadius: 7, spreadRadius: -2)] : []
+              boxShadow: (_selectedIndex == i) ? [BoxShadow(color: AllCores.laranja(180), blurRadius: 7, spreadRadius: -2)] : []
             ),
             child: NavigationHelper.icons[i]
           ),
@@ -61,13 +64,28 @@ class _NavbarState extends State<Navbar>{
   Widget build(BuildContext context) {
     _checkWidgetRoute();
     BottomNavigationBarThemeData bottomNavTheme = Theme.of(context).bottomNavigationBarTheme;
-    return RoundRect(
-      color: bottomNavTheme.backgroundColor,
-      margin: const EdgeInsets.fromLTRB(72, 0, 72, 64),
-      padding: const EdgeInsets.all(0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: _createIconButtons(bottomNavTheme),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(GlobalVars.gap * 1.5, 0, GlobalVars.gap * 1.5, GlobalVars.gap * 1.5),
+      decoration: BoxDecoration(
+        color: AllCores.background(180),
+        borderRadius: const BorderRadius.all(Radius.circular(12))
+      ),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 2.0,
+            sigmaY: 2.0,
+          ),
+          child: RoundRect(
+            margin: const EdgeInsets.all(0),
+            padding: const EdgeInsets.all(0),
+            color: bottomNavTheme.backgroundColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: _createIconButtons(bottomNavTheme),
+            )
+          )
+        )
       )
     );
   }

@@ -17,11 +17,48 @@ void main() {
 abstract class GlobalVars{
   static const double appbarHeight = 148;
   static const double gap = 24;
+  static const double iconSize = 32;
 }
+
+abstract class AllCores{
+  static Color background(int alpha){ return Color.fromARGB(alpha, 5, 6, 20); }
+  static Color laranja(int alpha){ return Color.fromARGB(alpha, 250, 90, 26); }
+  static Color vermelho(int alpha){ return Color.fromARGB(alpha, 255, 0, 0); }
+  static Color verde(int alpha){ return Color.fromARGB(alpha, 0, 255, 71); }
+  static Color amarelo(int alpha){ return Color.fromARGB(alpha, 255, 230, 0); }
+}
+
 abstract class TxtStyles{
-  static const heading1 = TextStyle(
-    fontSize: 36, fontWeight: FontWeight.w700
-  );
+  static TextStyle _private(double fontSize, FontWeight fontWeight, Color? shadowColor, double radius) { return TextStyle(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      shadows: (shadowColor == null) ? [] : [
+        BoxShadow( blurRadius: radius, color: shadowColor, offset: const Offset(0, 0),),
+        BoxShadow( blurRadius: radius, color: shadowColor, offset: const Offset(0, 0),),
+      ]
+    );
+  }
+  static TextStyle heading1(Color? shadowColor, double radius) {return _private(
+      36,
+      FontWeight.w700,
+      shadowColor,
+      radius
+    );
+  }
+  static TextStyle heading2(Color? shadowColor, double radius) {return _private(
+      20,
+      FontWeight.w600,
+      shadowColor,
+      radius
+    );
+  }
+  static TextStyle paragraph(Color? shadowColor, double radius) {return _private(
+      16,
+      FontWeight.w500,
+      shadowColor,
+      radius
+    );
+  }
 }
 ///
 ///////////
@@ -38,7 +75,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF111323)
         ),
-        scaffoldBackgroundColor: const Color(0xFF111323),
+        scaffoldBackgroundColor: AllCores.background(255),
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
           primary: Colors.white,

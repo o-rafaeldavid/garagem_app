@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:garagem_app/main.dart';
 import 'package:garagem_app/pages/landing.dart';
 import 'package:garagem_app/pages/qr_code.dart';
 
@@ -16,9 +17,9 @@ abstract class NavigationHelper{
   ];
 
   static final List<Icon> icons = [
-    const Icon(Icons.dashboard_rounded),
-    const Icon(Icons.qr_code),
-    const Icon(Icons.history_rounded),
+    const Icon(Icons.dashboard_rounded, size: GlobalVars.iconSize),
+    const Icon(Icons.qr_code, size: GlobalVars.iconSize),
+    const Icon(Icons.history_rounded, size: GlobalVars.iconSize),
   ];
 
   static Map<String, Widget> getRouteMap() {
