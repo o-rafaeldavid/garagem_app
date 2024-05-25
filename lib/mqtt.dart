@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:garagem_app/database/garage_status_db.dart';
 import 'package:typed_data/typed_data.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -28,6 +29,10 @@ class MQTTManager {
   int port = 8000;
   final StreamController<String> _messageController = StreamController<String>();
   Stream<String> get messageStream => _messageController.stream;
+
+  ///
+  Function? onGarageStatusUpdated;
+  final GarageStatusDB _garageStatusDB = GarageStatusDB();
 
 
   //////////////////////////////////////////////////////
@@ -65,6 +70,15 @@ class MQTTManager {
             if(Topics.subscribe.contains(msgTopic)){
               debugPrint("Recebido: [$msgTopic] $payload");
               _messageController.add("$msgTopic $payload");
+
+              ///
+              if (msgTopic == "portaestado-$globalTopic") {
+                bool porta_estado = (payload == "abre-te sésamo");
+                _garageStatusDB.update(porta_estado: porta_estado);
+                if (onGarageStatusUpdated != null) {
+                  onGarageStatusUpdated!();
+                }
+              }
             }
             else{ debugPrint("Recebido: [$msgTopic] TOPICO NEGADO | MENSAGEM: $payload"); }
           }

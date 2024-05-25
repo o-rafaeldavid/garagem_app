@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:garagem_app/database/database_service.dart';
+import 'package:garagem_app/database/garage_status_db.dart';
 import 'package:garagem_app/navigation_helper.dart';
 import 'package:garagem_app/pages/landing.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown
-  ]);
+  try {
+    debugPrint("INFORMAÇÃO --- Inicializando base de dados na main");
+    final databaseService = DatabaseService();
+    await databaseService.initializeDatabase();
+    debugPrint("INFORMAÇÃO --- Inicializada a base de dados com SUCESSO");
+
+    runApp(MyApp());
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown
+    ]);
+
+  } catch (e) {
+    debugPrint('ERRO --- Inicializando a base de dados: $e');
+  }
 }
 
 ///////////
@@ -64,10 +78,19 @@ abstract class TxtStyles{
 ///////////
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GarageStatusDB _garageStatusDB = GarageStatusDB();
+
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    _garageStatusDB.getAll().then((data) {
+      debugPrint("INFORMAÇÃO --- Todos os dados da base de dados:");
+      print(data);
+    }).catchError((e) {
+      debugPrint("ERRO --- Ao obter todos os dados da base de dados: $e");
+    });
+
     return MaterialApp(
       title: 'Estanciunamentu',
       debugShowCheckedModeBanner: false,
