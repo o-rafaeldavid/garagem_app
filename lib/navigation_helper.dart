@@ -7,19 +7,19 @@ abstract class NavigationHelper{
   static final List<String> routes = [
     '/home',
     '/qr',
-    '/settings',
+    /* '/history', */
   ];
 
   static final List<Widget> widgets = [
     const LandingScreen(),
     const QRCodeWidget(),
-    const QRCodeWidget(),
+    /* const QRCodeWidget(), */
   ];
 
   static final List<Icon> icons = [
     const Icon(Icons.dashboard_rounded, size: GlobalVars.iconSize),
     const Icon(Icons.qr_code, size: GlobalVars.iconSize),
-    const Icon(Icons.history_rounded, size: GlobalVars.iconSize),
+    /* const Icon(Icons.history_rounded, size: GlobalVars.iconSize), */
   ];
 
   static Map<String, Widget> getRouteMap() {

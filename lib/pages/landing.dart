@@ -6,7 +6,9 @@ import 'package:garagem_app/database/garage_status_db.dart';
 import 'package:garagem_app/main.dart';
 import 'package:garagem_app/model/garage_status.dart';
 import 'package:garagem_app/mqtt.dart';
+import 'package:garagem_app/navigation_helper.dart';
 import 'package:garagem_app/widgets/appbar.dart';
+import 'package:garagem_app/widgets/warningInfo.dart';
 import 'package:garagem_app/widgets/navbar.dart';
 import 'package:garagem_app/widgets/round_rect.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -141,36 +143,43 @@ class _LandingScreenState extends State<LandingScreen> {
             preferredSize: Size.fromHeight(GlobalVars.appbarHeight),
             child: MyAppbar(name: "GARAGE\nDASHBOARD")),
         /* bottomNavigationBar: const Navbar(), */
-        body: Container(
-          margin:
-              const EdgeInsets.fromLTRB(GlobalVars.gap, 0, GlobalVars.gap, 0),
-          child: Stack(children: <Widget>[
-            SingleChildScrollView(
+        body: Stack(children: <Widget>[
+            (_lastRow != null) ? Container(
+              margin: const EdgeInsets.all(GlobalVars.gap),
+              child: SingleChildScrollView(
                 child: Column(
-              children:
-                (_lastRow != null)
-                ? ( bentoBox.map((bentoRow) {
-                  return Container(
+                  children: bentoBox.map((bentoRow) {
+                      return Container(
                       margin: const EdgeInsets.only(bottom: GlobalVars.gap),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: bentoRow));
-                }).toList() )
-                : const <Widget>[
-                  Text("Teste")
+                    }).toList()
+                  )
+              )
+            )
+            : Center(child: 
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:<Widget>[
+                  WarningInfo(
+                    type: "warning",
+                    text: "Without Garage Associated",
+                    widgets: <Widget>[
+                        RoundRect(
+                          onTap: () { Navigator.pushNamed(context, NavigationHelper.routes[1]); },
+                          child: Text("Scan QR Code", style: GoogleFonts.orbitron(textStyle: TxtStyles.paragraph(null, 0)))
+                        )
+                      ],
+                  )
                 ]
-              /* Center(
-                  child: Text(snapshot.data!,style: TextStyle(color: Theme.of(context).colorScheme.onSecondary)),
-                ),
-                ElevatedButton(
-                  onPressed: () { mqtt.sendMessage("manel", Topics.publish[0]); },
-                  child: const Text("teste mandar mqtt", style: TextStyle(color: Colors.black))
-                ), */
-            )),
+              )
+            ),
+
             const Align(alignment: Alignment.bottomCenter, child: Navbar())
           ]
         )
-      )
     );
   }
 }
