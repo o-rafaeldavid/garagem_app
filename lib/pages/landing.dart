@@ -31,6 +31,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
   String _reservedString = "";
   bool _isVisible = true;
   bool _landingTOCameraInicializado = false;
+  String _estado = "";
 
   @override
   void initState() {
@@ -82,6 +83,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
     GarageStatusDB().getLastRow().then((lastRow) =>
       setState(() {
         _lastRow = lastRow;
+        _estado = _lastRow!.porta_estado;
         print(lastRow);
       })
     );
@@ -166,7 +168,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
             height: half_widthGapped,
             children: <Widget>[
               Expanded(child: 
-              (gStatus.porta_estado != "Opening" || gStatus.porta_estado != "Closing")
+              (gStatus.porta_estado != "Opening" && gStatus.porta_estado != "Closing")
                 ? (gStatus.porta_estado == "Open")
                     ? Text("Close\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.vermelho(255), 8)))
                     : Text("Open\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.verde(255), 8)))
@@ -175,7 +177,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
               Container(
                 alignment: Alignment.bottomRight,
                 height: GlobalVars.iconSize,
-                child: Image.asset('lib/assets/icons/lock_${(gStatus.porta_estado == "Open") ? "" : "un"}locked.png')
+                child: Image.asset('lib/assets/icons/lock_${(gStatus.porta_estado == "Open" || gStatus.porta_estado == "Opening") ? "" : "un"}locked.png')
               )
             ]
           ),
