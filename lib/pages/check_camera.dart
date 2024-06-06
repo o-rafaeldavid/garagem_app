@@ -22,19 +22,24 @@ class CheckCamera extends StatefulWidget{
 }
 
 class _CheckCameraState extends State<CheckCamera> with RouteAware{
-
   MQTTManager mqtt = MQTTManager();
+  String? _imagemCamera;
+  bool _cameraInicializado = false;
 
   @override
   void initState(){
     super.initState();
-    mqtt.onSuccessCamera = () {
-      print("teste");
+    mqtt.onSuccessCamera = (String payload) {
+      print(payload);
+      setState((){
+        _imagemCamera = payload;
+      });
     };
   }
 
   @override
   Widget build(BuildContext context){
+    print(_imagemCamera);
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(GlobalVars.appbarHeight),
@@ -43,11 +48,17 @@ class _CheckCameraState extends State<CheckCamera> with RouteAware{
       body: Stack(
         children: <Widget>[
           Center(
-            child: Container(padding: const EdgeInsets.only(bottom:  GlobalVars.appbarHeight - GlobalVars.gap * 6), child: Column(children: <Widget>[
+            child: Column(children: <Widget>[
               SizedBox(
                 width: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
                 height: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
-                child: Image.memory(base64Decode(imagemTeste.split(',').last))
+                child: (_imagemCamera != null)
+                ? Image.memory(base64Decode(_imagemCamera!.split(',').last))
+                : const WarningInfo(
+                    type: "warning",
+                    text: "Generate an Image Down Below!",
+                    widgets: <Widget>[],
+                  )
               ),
               RoundRect(
                 onTap: () {
@@ -57,7 +68,7 @@ class _CheckCameraState extends State<CheckCamera> with RouteAware{
                 child: Text("Generate image", style: GoogleFonts.orbitron(textStyle: TxtStyles.paragraph(null, 0)))
               )
               /* Text("resultado: $result") */
-            ]))
+            ])
           ),
           const Align(alignment: Alignment.bottomCenter, child: Navbar())
         ]

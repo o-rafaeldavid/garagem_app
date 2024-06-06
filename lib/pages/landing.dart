@@ -30,13 +30,17 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
   DateTime _reservedTime = DateTime.now().toUtc();
   String _reservedString = "";
   bool _isVisible = true;
+  bool _landingTOCameraInicializado = false;
+  String _openingClosing = "";
 
   @override
   void initState() {
     super.initState();
     mqtt.onGarageStatusUpdated = _updateLastRow;
-    mqtt.onSuccessCamera = () {
-      Navigator.pushNamed(context, "/camera");
+    mqtt.onSuccessCamera = (String payload) {
+      if(_landingTOCameraInicializado){
+        Navigator.pushNamed(context, "/camera");
+      }
     };
     _updateLastRow().then((_) {
       print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
@@ -128,12 +132,12 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
             children: <Widget>[
               Text("Status", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.laranja(255), 8))),
               const SizedBox(height: columnGap,),
-              if(gStatus.porta_estado) Row(children: <Widget>[
-                Text("Open", style: GoogleFonts.orbitron(color: AllCores.amarelo(255), textStyle: TxtStyles.paragraph(null, 0))),
+              if(gStatus.porta_estado == "Open" || gStatus.porta_estado == "Opening") Row(children: <Widget>[
+                Text(gStatus.porta_estado, style: GoogleFonts.orbitron(color: AllCores.amarelo(255), textStyle: TxtStyles.paragraph(null, 0))),
                 const SizedBox(width: columnGap * 0.7),
                 const Icon(Icons.warning_rounded, size: 0.53 * GlobalVars.iconSize, color: Colors.white)
               ])
-              else Text("Closed", style: GoogleFonts.orbitron(color: AllCores.branco(128), textStyle: TxtStyles.paragraph(null, 0)))
+              else Text(gStatus.porta_estado, style: GoogleFonts.orbitron(color: AllCores.branco(128), textStyle: TxtStyles.paragraph(null, 0)))
             ]
           ),
           RoundRectColumned(
@@ -153,26 +157,34 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
         <Widget>[
           RoundRectColumned(
             onTap: () {
-              mqtt.sendMessage("abre-te sésamo", Topics.publish[1]);
+              if(_openingClosing != "Opening" || _openingClosing != "Closing"){
+                if(gStatus.porta_estado == "Closed"){ mqtt.sendMessage("abre-te sésamo", Topics.publish[1]); }
+                else{ mqtt.sendMessage("fecha-te chia", Topics.publish[1]); }
+              }
             },
-            color: (gStatus.porta_estado) ? AllCores.vermelho(50) : AllCores.verde(25),
+            color: (gStatus.porta_estado == "Opening") ? AllCores.vermelho(50) : (gStatus.porta_estado == "Closed") ? AllCores.verde(25) : AllCores.amarelo(25),
             width: half_widthGapped,
             height: half_widthGapped,
             children: <Widget>[
               Expanded(child: 
-                (gStatus.porta_estado)
-                  ? Text("Close\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.vermelho(255), 8)))
-                  : Text("Open\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.verde(255), 8)))
+              (gStatus.porta_estado != "Opening" || gStatus.porta_estado != "Closing")
+                ? (gStatus.porta_estado == "Open")
+                    ? Text("Close\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.vermelho(255), 8)))
+                    : Text("Open\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.verde(255), 8)))
+                : Text(_openingClosing, style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.amarelo(255), 8)))
               ),
               Container(
                 alignment: Alignment.bottomRight,
                 height: GlobalVars.iconSize,
-                child: Image.asset('lib/assets/icons/lock_${gStatus.porta_estado ? "" : "un"}locked.png')
+                child: Image.asset('lib/assets/icons/lock_${(gStatus.porta_estado == "Open") ? "" : "un"}locked.png')
               )
             ]
           ),
           RoundRectColumned(
             onTap: () {
+              setState(() {
+                _landingTOCameraInicializado = true;
+              });
               mqtt.sendMessage("", Topics.publish[2]);
             },
             color: AllCores.laranja(25),
@@ -211,38 +223,45 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
             child: MyAppbar(name: "GARAGE\nDASHBOARD")),
         /* bottomNavigationBar: const Navbar(), */
         body: Stack(children: <Widget>[
-            (_lastRow != null && _lastRow!.active) ? Container(
-              margin: const EdgeInsets.all(GlobalVars.gap),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: bentoBox(_lastRow!).map((bentoRow) {
-                      return Container(
-                      margin: const EdgeInsets.only(bottom: GlobalVars.gap),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: bentoRow));
-                    }).toList()
-                  )
+          (!_landingTOCameraInicializado)
+            ? (_lastRow != null && _lastRow!.active) ? Container(
+                margin: const EdgeInsets.all(GlobalVars.gap),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: bentoBox(_lastRow!).map((bentoRow) {
+                        return Container(
+                        margin: const EdgeInsets.only(bottom: GlobalVars.gap),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: bentoRow));
+                      }).toList()
+                    )
+                )
               )
-            )
+              : Center(child: 
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:<Widget>[
+                    WarningInfo(
+                      type: "warning",
+                      text: "Without Garage Associated",
+                      widgets: <Widget>[
+                          RoundRect(
+                            onTap: () { Navigator.pushNamed(context, NavigationHelper.routes[1]); },
+                            child: Text("Scan QR Code", style: GoogleFonts.orbitron(textStyle: TxtStyles.paragraph(null, 0)))
+                          )
+                        ],
+                    )
+                  ]
+                )
+              )
             : Center(child: 
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:<Widget>[
-                  WarningInfo(
-                    type: "warning",
-                    text: "Without Garage Associated",
-                    widgets: <Widget>[
-                        RoundRect(
-                          onTap: () { Navigator.pushNamed(context, NavigationHelper.routes[1]); },
-                          child: Text("Scan QR Code", style: GoogleFonts.orbitron(textStyle: TxtStyles.paragraph(null, 0)))
-                        )
-                      ],
-                  )
-                ]
-              )
-            ),
+                Container(
+                  padding: const EdgeInsets.only(bottom: GlobalVars.appbarHeight),
+                  child: SizedBox( height: 2 * GlobalVars.iconSize, child: Image.asset('lib/assets/gifs/loading.gif'))
+                )
+              ),
 
             const Align(alignment: Alignment.bottomCenter, child: Navbar())
           ]

@@ -11,9 +11,9 @@ void main() async {
   try {
     debugPrint("INFORMAÇÃO --- Inicializando base de dados na main");
     final databaseService = DatabaseService();
-    /* await databaseService.deleteDB().then( (_) async { */
+    await databaseService.deleteDB().then( (_) async {
       await databaseService.initializeDatabase();
-    /* }); */
+    });
     debugPrint("INFORMAÇÃO --- Inicializada a base de dados com SUCESSO");
 
     runApp(MyApp());

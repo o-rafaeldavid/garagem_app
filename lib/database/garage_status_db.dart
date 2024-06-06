@@ -18,7 +18,7 @@ class GarageStatusDB{
         CREATE TABLE IF NOT EXISTS $tableName (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
-          porta_estado INTEGER NOT NULL DEFAULT 1,
+          porta_estado TEXT NOT NULL DEFAULT "Closed",
           active INTEGER NOT NULL DEFAULT 1,
           created_at TEXT DEFAULT NULL,
           updated_at TEXT DEFAULT NULL
@@ -43,7 +43,7 @@ class GarageStatusDB{
   Future<int> create({required String title}) async {
     final database = await DatabaseService().database;
     return await database.rawInsert(
-      '''INSERT INTO $tableName (title, porta_estado, active, created_at) VALUES (?, 1, 1, "${DateTime.now().toUtc().toIso8601String()}")''',
+      '''INSERT INTO $tableName (title, porta_estado, active, created_at) VALUES (?, "Closed", 1, "${DateTime.now().toUtc().toIso8601String()}")''',
       [title]
     );
   }
@@ -101,7 +101,7 @@ class GarageStatusDB{
 
   ///////
   Future<int> updateLastGarage({
-    bool? porta_estado,
+    String? porta_estado,
     bool? active
   }) async {
     final database = await DatabaseService().database;
@@ -111,7 +111,7 @@ class GarageStatusDB{
       return await database.update(
         tableName,
         {
-          'porta_estado': (porta_estado ?? lastRow.porta_estado) ? 1 : 0,
+          'porta_estado': porta_estado ?? lastRow.porta_estado,
           'active': (active ?? lastRow.active) ? 1 : 0,
           'updated_at': DateTime.now().toUtc().toIso8601String(),
         },

@@ -50,6 +50,8 @@ class MQTTManager {
   Function? onSuccessResGaragem;
   Function? onFailResGaragem;
   Function? onSuccessCamera;
+  bool _readingCamera = false;
+  String _savedCameraRead = "";
   final GarageStatusDB _garageStatusDB = GarageStatusDB();
 
 
@@ -91,17 +93,33 @@ class MQTTManager {
               _messageController.add("$msgTopic $payload");
 
               ///
-              if (msgTopic == Topics.subscribe[1] /* porta estado */) {
-                bool porta_estado = (payload == "abre-te sésamo");
+              if (msgTopic == Topics.subscribe[1] /* porta estado */ && !_readingCamera) {
+                String porta_estado = payload;
                 _garageStatusDB.updateLastGarage(porta_estado: porta_estado);
                 if (onGarageStatusUpdated != null) { onGarageStatusUpdated!(); }
               }
-              else if (msgTopic == Topics.subscribe[0] /* res garagem */) {
+              else if (msgTopic == Topics.subscribe[0] /* res garagem */ && !_readingCamera) {
                 if (checkAuthResponseMQTT(payload) && onSuccessResGaragem != null) { onSuccessResGaragem!(payload); }
                 else if (!checkAuthResponseMQTT(payload) && onFailResGaragem != null) { onFailResGaragem!(); }
               } 
               else if(msgTopic == Topics.subscribe[3] /* receber garagem */ && onSuccessCamera != null){
-                onSuccessCamera!();
+                print(payload);
+                if(!_readingCamera && payload == "#####__STARTCAMERA__#####"){
+                  _readingCamera = true;
+                }
+                else{
+                  if(payload == "#####__FINISHCAMERA__#####"){
+                    _readingCamera = false;
+                    onSuccessCamera!(_savedCameraRead);
+                    _savedCameraRead = "";
+                  }
+                  else{
+                    _savedCameraRead = _savedCameraRead + payload;
+                    print("NEW");
+                    print(_savedCameraRead);
+                    print("FINISH NEW");
+                  }
+                }
               }
             }
             else{ debugPrint("Recebido: [$msgTopic] TOPICO NEGADO | MENSAGEM: $payload"); }

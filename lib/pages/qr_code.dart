@@ -105,6 +105,13 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
     });
   }
 
+  void _focusCamera() {
+    if (qrController != null) {
+      qrController?.pauseCamera();
+      qrController!.resumeCamera();
+    }
+  }
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -126,14 +133,17 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
                         margin: const EdgeInsets.only(bottom: GlobalVars.gap),
                         child: Text("SCAN YOUR GARAGE HERE", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(null, 0))),
                       ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
-                        height: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
-                        child: QRView(
-                          key: qrKey,
-                          onQRViewCreated: _onQRViewCreated,
-                        )
-                      ),
+                      GestureDetector(
+                        onTapDown: (_) => _focusCamera(),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
+                          height: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
+                          child: QRView(
+                            key: qrKey,
+                            onQRViewCreated: _onQRViewCreated,
+                          )
+                        ),
+                      )
                       /* Text("resultado: $result") */
                     ])),
                   ]

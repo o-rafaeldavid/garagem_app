@@ -2,7 +2,7 @@ class GarageStatus{
   final int id;
   final String title;
 
-  final bool porta_estado;
+  final String porta_estado;
   final bool active;
 
   final DateTime createdAt;
@@ -21,7 +21,7 @@ class GarageStatus{
     return GarageStatus(
       id: map['id'],
       title: map['title'],
-      porta_estado: map['porta_estado'] == 1,
+      porta_estado: map['porta_estado'],
       active: map['active'] == 1,
       createdAt: DateTime.parse(map['created_at']),
       updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
