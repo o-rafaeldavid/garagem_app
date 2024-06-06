@@ -31,7 +31,6 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
   String _reservedString = "";
   bool _isVisible = true;
   bool _landingTOCameraInicializado = false;
-  String _openingClosing = "";
 
   @override
   void initState() {
@@ -157,7 +156,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
         <Widget>[
           RoundRectColumned(
             onTap: () {
-              if(_openingClosing != "Opening" || _openingClosing != "Closing"){
+              if(gStatus.porta_estado != "Opening" || gStatus.porta_estado != "Closing"){
                 if(gStatus.porta_estado == "Closed"){ mqtt.sendMessage("abre-te sésamo", Topics.publish[1]); }
                 else{ mqtt.sendMessage("fecha-te chia", Topics.publish[1]); }
               }
@@ -171,7 +170,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
                 ? (gStatus.porta_estado == "Open")
                     ? Text("Close\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.vermelho(255), 8)))
                     : Text("Open\nGarage", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.verde(255), 8)))
-                : Text(_openingClosing, style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.amarelo(255), 8)))
+                : Text(gStatus.porta_estado, style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(AllCores.amarelo(255), 8)))
               ),
               Container(
                 alignment: Alignment.bottomRight,
