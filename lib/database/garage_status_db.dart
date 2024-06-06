@@ -19,8 +19,9 @@ class GarageStatusDB{
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
           porta_estado INTEGER NOT NULL DEFAULT 1,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP
+          active INTEGER NOT NULL DEFAULT 1,
+          created_at TEXT DEFAULT NULL,
+          updated_at TEXT DEFAULT NULL
         )
       '''
     ).then((_) {
@@ -33,8 +34,8 @@ class GarageStatusDB{
         }
       });
     }).catchError((e) {
-      debugPrint("ERRO --- Erro ao criar a tabela : $e");
-      throw Exception("Erro ao criar a tabela: $e");
+      debugPrint("ERRO --- Erro ao criar a tabela '$tableName': $e");
+      throw Exception("Erro ao criar a tabela '$tableName': $e");
     });
   }
 
@@ -42,7 +43,7 @@ class GarageStatusDB{
   Future<int> create({required String title}) async {
     final database = await DatabaseService().database;
     return await database.rawInsert(
-      '''INSERT INTO $tableName (title, porta_estado, created_at) VALUES (?, 1, CURRENT_TIMESTAMP)''',
+      '''INSERT INTO $tableName (title, porta_estado, active, created_at) VALUES (?, 1, 1, "${DateTime.now().toUtc().toIso8601String()}")''',
       [title]
     );
   }
@@ -57,13 +58,17 @@ class GarageStatusDB{
   }
 
   ///////
-  Future<List<GarageStatus>> getAll() async {
+  Future<List<GarageStatus>> getAll({bool reverse = false}) async {
     final database = await DatabaseService().database;
     final List<Map<String, dynamic>> maps = await database.rawQuery('SELECT * FROM $tableName');
 
-    return List.generate(maps.length, (i) {
+    List<GarageStatus> garageStatusList = List.generate(maps.length, (i) {
       return GarageStatus.fromMap(maps[i]);
     });
+
+    if(reverse) garageStatusList = garageStatusList.reversed.toList();
+
+    return garageStatusList;
   }
 
   ///////
@@ -95,8 +100,9 @@ class GarageStatusDB{
   }
 
   ///////
-  Future<int> update({
-    bool? porta_estado
+  Future<int> updateLastGarage({
+    bool? porta_estado,
+    bool? active
   }) async {
     final database = await DatabaseService().database;
     final lastRow = await getLastRow();
@@ -106,7 +112,8 @@ class GarageStatusDB{
         tableName,
         {
           'porta_estado': (porta_estado ?? lastRow.porta_estado) ? 1 : 0,
-          'updated_at': DateTime.now().toIso8601String(),
+          'active': (active ?? lastRow.active) ? 1 : 0,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
         },
         where: 'id = ?',
         whereArgs: [lastRow.id],
@@ -120,11 +127,26 @@ class GarageStatusDB{
   ///////
   Future<void> delete(int id) async {
     final database = await DatabaseService().database;
-    debugPrint("INFORMAÇÃO --- Eliminando a tabela '$tableName' ...");
+    debugPrint("INFORMAÇÃO --- Eliminando o id '$id' da tabela '$tableName' ...");
     await database.rawDelete(
       '''DELETE FROM $tableName WHERE id = ?''',
       [id]
     );
-    debugPrint("INFORMAÇÃO --- Tabela '$tableName' eliminada com sucesso");
+    debugPrint("INFORMAÇÃO --- O id '$id' da tabela '$tableName' foi eliminado com sucesso");
+  }
+
+  Future<void> deleteTable() async {
+    final database = await DatabaseService().database;
+    debugPrint("INFORMAÇÃO --- Eliminando a tabela $tableName");
+    await database.execute(
+      '''
+        DROP TABLE IF EXISTS $tableName
+      '''
+    ).then((_) {
+      debugPrint("INFORMAÇÃO --- A tabela '$tableName' foi eliminada com sucesso!");
+    }).catchError((e) {
+      debugPrint("ERRO --- Erro ao eliminar a tabela '$tableName': $e");
+      throw Exception("ERRO --- Erro ao eliminar a tabela '$tableName': $e");
+    });
   }
 }

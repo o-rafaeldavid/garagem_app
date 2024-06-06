@@ -10,16 +10,16 @@ import 'package:mqtt_client/mqtt_browser_client.dart';
 const globalTopic = "estanciunamentu4000";
 abstract class Topics{
   static final List<String> subscribe = [
-    "userresauth-$globalTopic",
+    "userresauthgaragem-$globalTopic",
     "portaestado-$globalTopic",
     "alerta-$globalTopic",
-    "imagempedir-$globalTopic"
+    "imagemenvia-$globalTopic"
   ];
 
   static final List<String> publish = [
-    "userreqauth-$globalTopic",
+    "userreqauthgaragem-$globalTopic",
     "portaacao-$globalTopic",
-    "imagemenvia-$globalTopic"
+    "imagempedir-$globalTopic"
   ];
 }
 
@@ -29,9 +29,10 @@ class MQTTManager {
   int port = 8000;
   final StreamController<String> _messageController = StreamController<String>();
   Stream<String> get messageStream => _messageController.stream;
-
   ///
   Function? onGarageStatusUpdated;
+  Function? onSuccessResGaragem;
+  Function? onFailResGaragem;
   final GarageStatusDB _garageStatusDB = GarageStatusDB();
 
 
@@ -58,9 +59,10 @@ class MQTTManager {
       Topics.subscribe.forEach((topic) {
         client.subscribe(topic, MqttQos.exactlyOnce);
       });
+
+      
   
       client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        
         if (c.isNotEmpty){
           final MqttMessage mqttMessage = c[0].payload;
           final String msgTopic = c[0].topic;
@@ -72,18 +74,21 @@ class MQTTManager {
               _messageController.add("$msgTopic $payload");
 
               ///
-              if (msgTopic == "portaestado-$globalTopic") {
+              if (msgTopic == Topics.subscribe[1] /* porta estado */) {
                 bool porta_estado = (payload == "abre-te sésamo");
-                _garageStatusDB.update(porta_estado: porta_estado);
-                if (onGarageStatusUpdated != null) {
-                  onGarageStatusUpdated!();
-                }
+                _garageStatusDB.updateLastGarage(porta_estado: porta_estado);
+                if (onGarageStatusUpdated != null) { onGarageStatusUpdated!(); }
+              }
+              if (msgTopic == Topics.subscribe[0] /* res garagem */) {
+                if (payload == "local1_garage1_sim" && onSuccessResGaragem != null) { onSuccessResGaragem!(); }
+                else if (payload != "local1_garage1_sim" && onFailResGaragem != null) { onFailResGaragem!(); }
               }
             }
             else{ debugPrint("Recebido: [$msgTopic] TOPICO NEGADO | MENSAGEM: $payload"); }
           }
         }
       });
+
     };
 
     client.onDisconnected = () {
@@ -103,6 +108,7 @@ class MQTTManager {
   }
 
   void sendMessage(String message, String topicToSend) {
+    debugPrint(topicToSend);
     if(Topics.publish.contains(topicToSend)){
       final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
       builder.addString(message);

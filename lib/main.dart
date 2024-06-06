@@ -11,7 +11,9 @@ void main() async {
   try {
     debugPrint("INFORMAÇÃO --- Inicializando base de dados na main");
     final databaseService = DatabaseService();
-    await databaseService.initializeDatabase();
+    await databaseService.deleteDB().then( (_) async {
+      await databaseService.initializeDatabase();
+    });
     debugPrint("INFORMAÇÃO --- Inicializada a base de dados com SUCESSO");
 
     runApp(MyApp());
@@ -40,6 +42,7 @@ abstract class AllCores{
   static Color vermelho(int alpha){ return Color.fromARGB(alpha, 255, 0, 0); }
   static Color verde(int alpha){ return Color.fromARGB(alpha, 0, 255, 71); }
   static Color amarelo(int alpha){ return Color.fromARGB(alpha, 255, 230, 0); }
+  static Color branco(int alpha){ return Color.fromARGB(alpha, 255, 255, 255); }
 }
 
 abstract class TxtStyles{
@@ -73,6 +76,13 @@ abstract class TxtStyles{
       radius
     );
   }
+  static TextStyle smallInfo(Color? shadowColor, double radius) {return _private(
+      12,
+      FontWeight.w500,
+      shadowColor,
+      radius
+    );
+  }
 }
 ///
 ///////////
@@ -87,6 +97,16 @@ class MyApp extends StatelessWidget {
     _garageStatusDB.getAll().then((data) {
       debugPrint("INFORMAÇÃO --- Todos os dados da base de dados:");
       print(data);
+
+      // para debug | eliminar local table
+      /* int length = data.length;
+      while(length > 0){
+        _garageStatusDB.delete(data[length - 1].id).then((_){
+          length = length - 1;
+        });
+      }
+      _garageStatusDB.deleteTable(); */
+     
     }).catchError((e) {
       debugPrint("ERRO --- Ao obter todos os dados da base de dados: $e");
     });

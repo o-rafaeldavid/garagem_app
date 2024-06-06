@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:garagem_app/main.dart';
+import 'package:garagem_app/pages/history.dart';
 import 'package:garagem_app/pages/landing.dart';
 import 'package:garagem_app/pages/qr_code.dart';
 
@@ -7,19 +8,19 @@ abstract class NavigationHelper{
   static final List<String> routes = [
     '/home',
     '/qr',
-    /* '/history', */
+    '/history',
   ];
 
   static final List<Widget> widgets = [
     const LandingScreen(),
     const QRCodeWidget(),
-    /* const QRCodeWidget(), */
+    const HistoryScreen(),
   ];
 
   static final List<Icon> icons = [
     const Icon(Icons.dashboard_rounded, size: GlobalVars.iconSize),
     const Icon(Icons.qr_code, size: GlobalVars.iconSize),
-    /* const Icon(Icons.history_rounded, size: GlobalVars.iconSize), */
+    const Icon(Icons.history_rounded, size: GlobalVars.iconSize),
   ];
 
   static Map<String, Widget> getRouteMap() {

@@ -27,27 +27,45 @@ class _RoundRect extends State<RoundRect>{
   late Widget? child;
   late void Function()? onTap;
 
+  late Color? _color;
+
   @override
   void initState() {
     super.initState();
     color = widget.color;
+    _color = color!;
     margin = widget.margin;
     padding = widget.padding;
     onTap = widget.onTap;
     child = widget.child;
   }
+
+  void _doTapAnimation() {
+    setState(() {
+      _color = (_color == color) ? color!.withOpacity(0.3) : color;
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
-  return Container(
-      padding: padding,
-      margin: margin,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-      ),
-      child: (onTap == null) ? child : GestureDetector(
-        onTap: onTap,
+  return GestureDetector(
+      onTap: (onTap == null) ? () {} : () {
+        _doTapAnimation();
+        Future.delayed(const Duration(milliseconds: 150), () {
+          _doTapAnimation();
+          Future.delayed(const Duration(milliseconds: 150), () {
+            onTap!();
+          });
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: padding,
+        margin: margin,
+        decoration: BoxDecoration(
+          color: _color,
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+        ),
         child: child
       )
     );
@@ -80,8 +98,8 @@ class RoundRectColumned extends StatefulWidget{
     this.padding = const EdgeInsets.all(12),
     this.onTap,
     required this.children,
-    required this.width,
-    required this.height,
+    this.width,
+    this.height,
     this.crossAxisAlignment = CrossAxisAlignment.start,
     this.mainAxisAlignment = MainAxisAlignment.start
   });

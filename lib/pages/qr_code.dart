@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:garagem_app/database/garage_status_db.dart';
 import 'package:garagem_app/main.dart';
+import 'package:garagem_app/mqtt.dart';
 import 'package:garagem_app/widgets/appbar.dart';
 import 'package:garagem_app/widgets/navbar.dart';
 import 'package:garagem_app/widgets/round_rect.dart';
@@ -22,12 +23,19 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
   String result = "";
   bool _isVisible = true;
   bool _cameraPermissionGranted = false;
+  bool _isLoading = false;
+  bool _onGarage = false;
 
+  bool _qrInicializado = false;
+
+  MQTTManager mqtt = MQTTManager();
   final GarageStatusDB _garageStatusDB = GarageStatusDB();
 
   @override
   void initState() {
     super.initState();
+    mqtt.onSuccessResGaragem = _successResGaragem;
+    mqtt.onFailResGaragem = _failResGaragem;
     requestCameraPermission();
   }
 
@@ -48,10 +56,30 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
   void didChangeDependencies() {
     super.didChangeDependencies();
     _isVisible = ModalRoute.of(context)?.isCurrent == true;
-    if (_isVisible && qrController != null) {
-      qrController!.resumeCamera();
-    } else if(_isVisible) {
-      qrController?.pauseCamera();
+    if(!_isLoading){
+      if (_isVisible && qrController != null) {
+        qrController!.resumeCamera();
+      } else {
+        qrController?.pauseCamera();
+      }
+    }
+  }
+
+  void _successResGaragem(){
+    debugPrint("INFORMAÇÃO — Garagem QR Sucesso!");
+    if(_qrInicializado){
+      _garageStatusDB.create(title: "Garagem1").then((res) => {
+        Navigator.pushNamed(context, "/")
+      });
+    }
+  }
+
+  void _failResGaragem(){
+    debugPrint("ERRO — Garagem QR bué sad!");
+    if(_qrInicializado){
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -59,8 +87,12 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
     this.qrController = qrController;
     qrController.scannedDataStream.listen((scanData) {
       if(scanData.code! == "authreq_local1_garage1") {
+        print("oioioi");
+        _qrInicializado = true;
+        mqtt.sendMessage("authreq_local1_garage1", Topics.publish[0] /* req garagem */);
         setState(() {
-          _cameraPermissionGranted = false;
+          _isLoading = true;
+          qrController?.pauseCamera();
         });
       }
 
@@ -84,36 +116,40 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (_cameraPermissionGranted) ...<Widget>[
-                  Container(padding: const EdgeInsets.only(bottom: GlobalVars.appbarHeight), child: Column(children: <Widget>[
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
-                      height: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
-                      child: Stack(
-                        children: <Widget>[
-                          QRView(
-                            key: qrKey,
-                            onQRViewCreated: _onQRViewCreated,
-                          ),
-                          Image.asset('lib/assets/icons/cut_cam.png')
-                        ]
-                      )
-                    ),
-                    Text("resultado: $result")
-                  ])),
-                ]
-                else ...<Widget>[
-                  WarningInfo(
-                    type: "nocam",
-                    text: "Without Camera Permission",
-                    widgets: <Widget>[
-                      RoundRect(
-                        onTap: () { openAppSettings(); },
-                        child: Text("Check Permissions", style: GoogleFonts.orbitron(textStyle: TxtStyles.paragraph(null, 0)))
-                      )
-                    ],
-                  )
-                ]
+                if(!_isLoading && !_onGarage)
+                  if (_cameraPermissionGranted) ...<Widget>[
+                    Container(padding: const EdgeInsets.only(bottom: GlobalVars.appbarHeight + GlobalVars.gap), child: Column(children: <Widget>[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: GlobalVars.gap),
+                        child: Text("SCAN YOUR GARAGE HERE", style: GoogleFonts.orbitron(textStyle: TxtStyles.heading2(null, 0))),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
+                        height: MediaQuery.of(context).size.width - 2 * GlobalVars.gap,
+                        child: QRView(
+                          key: qrKey,
+                          onQRViewCreated: _onQRViewCreated,
+                        )
+                      ),
+                      /* Text("resultado: $result") */
+                    ])),
+                  ]
+                  else...<Widget>[
+                    WarningInfo(
+                      type: "nocam",
+                      text: "Without Camera Permission",
+                      widgets: <Widget>[
+                        RoundRect(
+                          onTap: () { openAppSettings(); },
+                          child: Text("Check Permissions", style: GoogleFonts.orbitron(textStyle: TxtStyles.paragraph(null, 0)))
+                        )
+                      ],
+                    )
+                  ]
+                else if(!_onGarage) Container(
+                  padding: const EdgeInsets.only(bottom: GlobalVars.appbarHeight),
+                  child: SizedBox( height: 2 * GlobalVars.iconSize, child: Image.asset('lib/assets/gifs/loading.gif'))
+                )
               ]
             )
           ),

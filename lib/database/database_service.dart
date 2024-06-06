@@ -56,8 +56,24 @@ class DatabaseService {
     }
   }
 
+  Future<void> deleteDB() async {
+    try {
+      final path = await fullPath;
+      debugPrint("INFORMAÇÃO --- Eliminando a _database: $path");
+      await deleteDatabase(path);
+      debugPrint("INFORMAÇÃO --- _database eliminada com sucesso");
+      _database = null;
+    } catch (e) {
+      debugPrint("ERRO --- Ao eliminar a _database: $e");
+      throw Exception("ERRO --- Ao eliminar a _database: $e");
+    }
+  }
+
   Future<void> initializeDatabase() async {
     try {
+      // Aguarde a inicialização do banco de dados
+      await _initialize();
+      // Aguarde a conclusão da operação de inicialização
       await database;
     } catch (e) {
       debugPrint("ERRO --- Ao inicializar a _database: $e");
