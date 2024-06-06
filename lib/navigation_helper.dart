@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:garagem_app/main.dart';
+import 'package:garagem_app/pages/check_camera.dart';
 import 'package:garagem_app/pages/history.dart';
 import 'package:garagem_app/pages/landing.dart';
 import 'package:garagem_app/pages/qr_code.dart';
@@ -9,12 +10,14 @@ abstract class NavigationHelper{
     '/home',
     '/qr',
     '/history',
+    '/camera'
   ];
 
   static final List<Widget> widgets = [
     const LandingScreen(),
     const QRCodeWidget(),
     const HistoryScreen(),
+    const CheckCamera()
   ];
 
   static final List<Icon> icons = [

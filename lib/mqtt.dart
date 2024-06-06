@@ -23,6 +23,22 @@ abstract class Topics{
   ];
 }
 
+///
+///
+///
+bool checkAuthRequestQR(String scanString){
+  RegExp regex = RegExp(r'^authreq_local\d+_garage\d+$');
+  return regex.hasMatch(scanString);
+}
+
+bool checkAuthResponseMQTT(String mqttString){
+  RegExp regex = RegExp(r'^local\d+_garage\d+_sim$');
+  return regex.hasMatch(mqttString);
+}
+///
+///
+///
+
 class MQTTManager {
   late dynamic client;
   String broker = 'broker.hivemq.com';
@@ -33,6 +49,7 @@ class MQTTManager {
   Function? onGarageStatusUpdated;
   Function? onSuccessResGaragem;
   Function? onFailResGaragem;
+  Function? onSuccessCamera;
   final GarageStatusDB _garageStatusDB = GarageStatusDB();
 
 
@@ -79,9 +96,12 @@ class MQTTManager {
                 _garageStatusDB.updateLastGarage(porta_estado: porta_estado);
                 if (onGarageStatusUpdated != null) { onGarageStatusUpdated!(); }
               }
-              if (msgTopic == Topics.subscribe[0] /* res garagem */) {
-                if (payload == "local1_garage1_sim" && onSuccessResGaragem != null) { onSuccessResGaragem!(); }
-                else if (payload != "local1_garage1_sim" && onFailResGaragem != null) { onFailResGaragem!(); }
+              else if (msgTopic == Topics.subscribe[0] /* res garagem */) {
+                if (checkAuthResponseMQTT(payload) && onSuccessResGaragem != null) { onSuccessResGaragem!(payload); }
+                else if (!checkAuthResponseMQTT(payload) && onFailResGaragem != null) { onFailResGaragem!(); }
+              } 
+              else if(msgTopic == Topics.subscribe[3] /* receber garagem */ && onSuccessCamera != null){
+                onSuccessCamera!();
               }
             }
             else{ debugPrint("Recebido: [$msgTopic] TOPICO NEGADO | MENSAGEM: $payload"); }

@@ -35,6 +35,9 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
   void initState() {
     super.initState();
     mqtt.onGarageStatusUpdated = _updateLastRow;
+    mqtt.onSuccessCamera = () {
+      Navigator.pushNamed(context, "/camera");
+    };
     _updateLastRow().then((_) {
       print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
       _startTimerReserved();

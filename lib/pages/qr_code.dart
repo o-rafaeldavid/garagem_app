@@ -65,10 +65,13 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
     }
   }
 
-  void _successResGaragem(){
+  void _successResGaragem(String payload){
     debugPrint("INFORMAÇÃO — Garagem QR Sucesso!");
+    int startIndex = payload.indexOf("garage");
+    int underscoreIndex = payload.indexOf("_", startIndex);
+    String lowerFinal = payload.substring(startIndex, underscoreIndex);
     if(_qrInicializado){
-      _garageStatusDB.create(title: "Garagem1").then((res) => {
+      _garageStatusDB.create(title: lowerFinal[0].toUpperCase() + lowerFinal.substring(1)).then((res) => {
         Navigator.pushNamed(context, "/")
       });
     }
@@ -86,10 +89,10 @@ class _QRCodeWidgetState extends State<QRCodeWidget> with RouteAware{
   void _onQRViewCreated(QRViewController qrController){
     this.qrController = qrController;
     qrController.scannedDataStream.listen((scanData) {
-      if(scanData.code! == "authreq_local1_garage1") {
-        print("oioioi");
+
+      if(checkAuthRequestQR(scanData.code!)) {
         _qrInicializado = true;
-        mqtt.sendMessage("authreq_local1_garage1", Topics.publish[0] /* req garagem */);
+        mqtt.sendMessage(scanData.code!, Topics.publish[0] /* req garagem */);
         setState(() {
           _isLoading = true;
           qrController?.pauseCamera();

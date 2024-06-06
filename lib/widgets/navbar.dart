@@ -17,7 +17,7 @@ class _NavbarState extends State<Navbar>{
   
   List<IconButton> _createIconButtons(BottomNavigationBarThemeData bottomNavTheme){
     List<IconButton> iconButtons = <IconButton>[];
-    for (int i = 0; i < NavigationHelper.routes.length; i++) {
+    for (int i = 0; i < NavigationHelper.icons.length; i++) {
       iconButtons.add(
         IconButton(
           color: (_selectedIndex == i) ? bottomNavTheme.selectedItemColor : bottomNavTheme.unselectedItemColor,
