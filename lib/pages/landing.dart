@@ -83,7 +83,9 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
     GarageStatusDB().getLastRow().then((lastRow) =>
       setState(() {
         _lastRow = lastRow;
-        _estado = _lastRow!.porta_estado;
+        if(_lastRow != null){
+          _estado = _lastRow!.porta_estado;
+        }
         print(lastRow);
       })
     );
@@ -159,7 +161,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
           RoundRectColumned(
             onTap: () {
               if(gStatus.porta_estado != "Opening" || gStatus.porta_estado != "Closing"){
-                if(gStatus.porta_estado == "Closed"){ mqtt.sendMessage("abre-te sésamo", Topics.publish[1]); }
+                if(gStatus.porta_estado == "Closed"){ mqtt.sendMessage("abre-te sesamo", Topics.publish[1]); }
                 else{ mqtt.sendMessage("fecha-te chia", Topics.publish[1]); }
               }
             },
