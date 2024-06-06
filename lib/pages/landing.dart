@@ -36,14 +36,17 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
   @override
   void initState() {
     super.initState();
-    mqtt.onGarageStatusUpdated = _updateLastRow;
+    mqtt.onGarageStatusUpdated = () {
+      print("onGarageStatusUpdated called");
+      _updateLastRow();
+    };
     mqtt.onSuccessCamera = (String payload) {
       if(_landingTOCameraInicializado){
         Navigator.pushNamed(context, "/camera");
       }
     };
+
     _updateLastRow().then((_) {
-      print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
       _startTimerReserved();
     });
   }
@@ -79,16 +82,15 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
 
 
   Future<void> _updateLastRow() async {
-    print("BOTA BER");
-    GarageStatusDB().getLastRow().then((lastRow) =>
-      setState(() {
-        _lastRow = lastRow;
-        if(_lastRow != null){
-          _estado = _lastRow!.porta_estado;
-        }
-        print(lastRow);
-      })
-    );
+    print("Updating last row");
+    final lastRow = await GarageStatusDB().getLastRow();
+    setState(() {
+      _lastRow = lastRow;
+      if (_lastRow != null) {
+        _estado = _lastRow!.porta_estado;
+      }
+      print(lastRow);
+    });
   }
 
   Future<void> _goMaps({String? query = ""}) async {

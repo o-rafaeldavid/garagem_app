@@ -96,7 +96,11 @@ class MQTTManager {
               if (msgTopic == Topics.subscribe[1] /* porta estado */ && !_readingCamera) {
                 String porta_estado = payload;
                 _garageStatusDB.updateLastGarage(porta_estado: porta_estado);
-                if (onGarageStatusUpdated != null) { onGarageStatusUpdated!(); }
+                debugPrint("Teste: Atualizando porta_estado para $porta_estado");
+                if (onGarageStatusUpdated != null) {
+                  debugPrint("Chamando onGarageStatusUpdated");
+                  onGarageStatusUpdated!();
+                }
               }
               else if (msgTopic == Topics.subscribe[0] /* res garagem */ && !_readingCamera) {
                 if (checkAuthResponseMQTT(payload) && onSuccessResGaragem != null) { onSuccessResGaragem!(payload); }
