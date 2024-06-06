@@ -161,7 +161,7 @@ class _LandingScreenState extends State<LandingScreen> with RouteAware{
                 else{ mqtt.sendMessage("fecha-te chia", Topics.publish[1]); }
               }
             },
-            color: (gStatus.porta_estado == "Opening") ? AllCores.vermelho(50) : (gStatus.porta_estado == "Closed") ? AllCores.verde(25) : AllCores.amarelo(25),
+            color: (gStatus.porta_estado == "Open") ? AllCores.vermelho(50) : (gStatus.porta_estado == "Closed") ? AllCores.verde(25) : AllCores.amarelo(25),
             width: half_widthGapped,
             height: half_widthGapped,
             children: <Widget>[
