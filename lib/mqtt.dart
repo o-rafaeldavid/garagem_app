@@ -8,7 +8,8 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 
 const globalTopic = "estanciunamentu4000";
-abstract class Topics{
+
+abstract class Topics {
   static final List<String> subscribe = [
     "userresauthgaragem-$globalTopic",
     "portaestado-$globalTopic",
@@ -26,15 +27,16 @@ abstract class Topics{
 ///
 ///
 ///
-bool checkAuthRequestQR(String scanString){
+bool checkAuthRequestQR(String scanString) {
   RegExp regex = RegExp(r'^authreq_local\d+_garage\d+$');
   return regex.hasMatch(scanString);
 }
 
-bool checkAuthResponseMQTT(String mqttString){
+bool checkAuthResponseMQTT(String mqttString) {
   RegExp regex = RegExp(r'^local\d+_garage\d+_sim$');
   return regex.hasMatch(mqttString);
 }
+
 ///
 ///
 ///
@@ -43,8 +45,10 @@ class MQTTManager {
   late dynamic client;
   String broker = 'broker.hivemq.com';
   int port = 8000;
-  final StreamController<String> _messageController = StreamController<String>();
+  final StreamController<String> _messageController =
+      StreamController<String>();
   Stream<String> get messageStream => _messageController.stream;
+
   ///
   Function? onGarageStatusUpdated;
   Function? onSuccessResGaragem;
@@ -54,15 +58,14 @@ class MQTTManager {
   String _savedCameraRead = "";
   final GarageStatusDB _garageStatusDB = GarageStatusDB();
 
-
   //////////////////////////////////////////////////////
   MQTTManager() {
-    if(!kIsWeb){
+    if (!kIsWeb) {
       client = MqttServerClient(broker, '$globalTopic-app');
       port = 1883;
-    }
-    else{
-      client = MqttBrowserClient("ws://$broker", 'estanciunamentu-app', maxConnectionAttempts: 100);
+    } else {
+      client = MqttBrowserClient("ws://$broker", 'estanciunamentu-app',
+          maxConnectionAttempts: 100);
       port = 8000;
     }
     client.port = port;
@@ -79,45 +82,50 @@ class MQTTManager {
         client.subscribe(topic, MqttQos.exactlyOnce);
       });
 
-      
-  
       client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        if (c.isNotEmpty){
+        if (c.isNotEmpty) {
           final MqttMessage mqttMessage = c[0].payload;
           final String msgTopic = c[0].topic;
           if (mqttMessage is MqttPublishMessage) {
-            final String payload = MqttPublishPayload.bytesToStringAsString(mqttMessage.payload.message);
-            
-            if(Topics.subscribe.contains(msgTopic)){
+            final String payload = MqttPublishPayload.bytesToStringAsString(
+                mqttMessage.payload.message);
+
+            if (Topics.subscribe.contains(msgTopic)) {
               debugPrint("Recebido: [$msgTopic] $payload");
               _messageController.add("$msgTopic $payload");
 
               ///
-              if (msgTopic == Topics.subscribe[1] /* porta estado */ && !_readingCamera) {
+              if (msgTopic == Topics.subscribe[1] /* porta estado */ &&
+                  !_readingCamera) {
                 String porta_estado = payload;
                 _garageStatusDB.updateLastGarage(porta_estado: porta_estado);
-                debugPrint("Teste: Atualizando porta_estado para $porta_estado");
+                debugPrint(
+                    "Teste: Atualizando porta_estado para $porta_estado");
                 if (onGarageStatusUpdated != null) {
                   debugPrint("Chamando onGarageStatusUpdated");
                   onGarageStatusUpdated!();
                 }
-              }
-              else if (msgTopic == Topics.subscribe[0] /* res garagem */ && !_readingCamera) {
-                if (checkAuthResponseMQTT(payload) && onSuccessResGaragem != null) { onSuccessResGaragem!(payload); }
-                else if (!checkAuthResponseMQTT(payload) && onFailResGaragem != null) { onFailResGaragem!(); }
-              } 
-              else if(msgTopic == Topics.subscribe[3] /* receber garagem */ && onSuccessCamera != null){
-                print(payload);
-                if(!_readingCamera && payload == "#####__STARTCAMERA__#####"){
-                  _readingCamera = true;
+              } else if (msgTopic == Topics.subscribe[0] /* res garagem */ &&
+                  !_readingCamera) {
+                if (checkAuthResponseMQTT(payload) &&
+                    onSuccessResGaragem != null) {
+                  onSuccessResGaragem!(payload);
+                } else if (!checkAuthResponseMQTT(payload) &&
+                    onFailResGaragem != null) {
+                  onFailResGaragem!();
                 }
-                else{
-                  if(payload == "#####__FINISHCAMERA__#####"){
+              } else if (msgTopic ==
+                      Topics.subscribe[3] /* receber garagem */ &&
+                  onSuccessCamera != null) {
+                print(payload);
+                if (!_readingCamera && payload == "#####__STARTCAMERA__#####") {
+                  _readingCamera = true;
+                } else {
+                  if (payload == "#####__FINISHCAMERA__#####") {
                     _readingCamera = false;
                     onSuccessCamera!(_savedCameraRead);
                     _savedCameraRead = "";
-                  }
-                  else{
+                  } else {
                     _savedCameraRead = _savedCameraRead + payload;
                     print("NEW");
                     print(_savedCameraRead);
@@ -125,12 +133,13 @@ class MQTTManager {
                   }
                 }
               }
+            } else {
+              debugPrint(
+                  "Recebido: [$msgTopic] TOPICO NEGADO | MENSAGEM: $payload");
             }
-            else{ debugPrint("Recebido: [$msgTopic] TOPICO NEGADO | MENSAGEM: $payload"); }
           }
         }
       });
-
     };
 
     client.onDisconnected = () {
@@ -151,21 +160,27 @@ class MQTTManager {
 
   void sendMessage(String message, String topicToSend) {
     debugPrint(topicToSend);
-    if(Topics.publish.contains(topicToSend)){
+    if (Topics.publish.contains(topicToSend)) {
       final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
       builder.addString(message);
       final Uint8Buffer? payload = builder.payload;
-      if (payload != null){
+      if (payload != null) {
         client.publishMessage(topicToSend, MqttQos.exactlyOnce, payload);
         debugPrint("Enviado: [$topicToSend] $message");
       }
+    } else {
+      throw Exception(
+          "O tópico $topicToSend não dá pa ___enviares___ pÁ! (OH BURRO)");
     }
-    else{ throw Exception("O tópico $topicToSend não dá pa ___enviares___ pÁ! (OH BURRO)"); }
   }
 
-  void onTopicDoIt(String topicRecieved, Function fun){
-    if(Topics.subscribe.contains(topicRecieved)) fun;
-    else{ throw Exception("O tópico $topicRecieved não dá pa ___receberes___ pÁ! (OH BURRO)"); }
+  void onTopicDoIt(String topicRecieved, Function fun) {
+    if (Topics.subscribe.contains(topicRecieved))
+      fun;
+    else {
+      throw Exception(
+          "O tópico $topicRecieved não dá pa ___receberes___ pÁ! (OH BURRO)");
+    }
   }
 
   void disconnect() {

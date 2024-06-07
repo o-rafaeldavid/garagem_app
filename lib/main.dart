@@ -12,17 +12,14 @@ void main() async {
     debugPrint("INFORMAÇÃO --- Inicializando base de dados na main");
     final databaseService = DatabaseService();
     /* await databaseService.deleteDB().then( (_) async { */
-      await databaseService.initializeDatabase();
+    await databaseService.initializeDatabase();
     /* }); */
     debugPrint("INFORMAÇÃO --- Inicializada a base de dados com SUCESSO");
 
     runApp(MyApp());
 
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown
-    ]);
-
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   } catch (e) {
     debugPrint('ERRO --- Inicializando a base de dados: $e');
   }
@@ -30,60 +27,77 @@ void main() async {
 
 ///////////
 ///
-abstract class GlobalVars{
+abstract class GlobalVars {
   static const double appbarHeight = 148;
   static const double gap = 24;
   static const double iconSize = 32;
 }
 
-abstract class AllCores{
-  static Color background(int alpha){ return Color.fromARGB(alpha, 5, 6, 20); }
-  static Color laranja(int alpha){ return Color.fromARGB(alpha, 250, 90, 26); }
-  static Color vermelho(int alpha){ return Color.fromARGB(alpha, 255, 0, 0); }
-  static Color verde(int alpha){ return Color.fromARGB(alpha, 0, 255, 71); }
-  static Color amarelo(int alpha){ return Color.fromARGB(alpha, 255, 230, 0); }
-  static Color branco(int alpha){ return Color.fromARGB(alpha, 255, 255, 255); }
+abstract class AllCores {
+  static Color background(int alpha) {
+    return Color.fromARGB(alpha, 5, 6, 20);
+  }
+
+  static Color laranja(int alpha) {
+    return Color.fromARGB(alpha, 250, 90, 26);
+  }
+
+  static Color vermelho(int alpha) {
+    return Color.fromARGB(alpha, 255, 0, 0);
+  }
+
+  static Color verde(int alpha) {
+    return Color.fromARGB(alpha, 0, 255, 71);
+  }
+
+  static Color amarelo(int alpha) {
+    return Color.fromARGB(alpha, 255, 230, 0);
+  }
+
+  static Color branco(int alpha) {
+    return Color.fromARGB(alpha, 255, 255, 255);
+  }
 }
 
-abstract class TxtStyles{
-  static TextStyle _private(double fontSize, FontWeight fontWeight, Color? shadowColor, double radius) { return TextStyle(
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      shadows: (shadowColor == null) ? [] : [
-        BoxShadow( blurRadius: radius, color: shadowColor, offset: const Offset(0, 0),),
-        BoxShadow( blurRadius: radius, color: shadowColor, offset: const Offset(0, 0),),
-      ]
-    );
+abstract class TxtStyles {
+  static TextStyle _private(double fontSize, FontWeight fontWeight,
+      Color? shadowColor, double radius) {
+    return TextStyle(
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        shadows: (shadowColor == null)
+            ? []
+            : [
+                BoxShadow(
+                  blurRadius: radius,
+                  color: shadowColor,
+                  offset: const Offset(0, 0),
+                ),
+                BoxShadow(
+                  blurRadius: radius,
+                  color: shadowColor,
+                  offset: const Offset(0, 0),
+                ),
+              ]);
   }
-  static TextStyle heading1(Color? shadowColor, double radius) {return _private(
-      36,
-      FontWeight.w700,
-      shadowColor,
-      radius
-    );
+
+  static TextStyle heading1(Color? shadowColor, double radius) {
+    return _private(36, FontWeight.w700, shadowColor, radius);
   }
-  static TextStyle heading2(Color? shadowColor, double radius) {return _private(
-      20,
-      FontWeight.w600,
-      shadowColor,
-      radius
-    );
+
+  static TextStyle heading2(Color? shadowColor, double radius) {
+    return _private(20, FontWeight.w600, shadowColor, radius);
   }
-  static TextStyle paragraph(Color? shadowColor, double radius) {return _private(
-      16,
-      FontWeight.w500,
-      shadowColor,
-      radius
-    );
+
+  static TextStyle paragraph(Color? shadowColor, double radius) {
+    return _private(16, FontWeight.w500, shadowColor, radius);
   }
-  static TextStyle smallInfo(Color? shadowColor, double radius) {return _private(
-      12,
-      FontWeight.w500,
-      shadowColor,
-      radius
-    );
+
+  static TextStyle smallInfo(Color? shadowColor, double radius) {
+    return _private(12, FontWeight.w500, shadowColor, radius);
   }
 }
+
 ///
 ///////////
 
@@ -106,7 +120,6 @@ class MyApp extends StatelessWidget {
         });
       }
       _garageStatusDB.deleteTable(); */
-     
     }).catchError((e) {
       debugPrint("ERRO --- Ao obter todos os dados da base de dados: $e");
     });
@@ -115,32 +128,28 @@ class MyApp extends StatelessWidget {
       title: 'Estanciunamentu',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF111323)
-        ),
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF111323)),
         scaffoldBackgroundColor: AllCores.background(255),
         colorScheme: const ColorScheme(
-          brightness: Brightness.light,
-          primary: Colors.white,
-          onPrimary: Colors.white,
-          secondary: Colors.blue,
-          onSecondary: Colors.blue,
-          error: Colors.white,
-          onError: Colors.white,
-          background: Colors.white,
-          onBackground: Colors.white,
-          surface: Colors.white,
-          onSurface: Colors.white
-        ),
+            brightness: Brightness.light,
+            primary: Colors.white,
+            onPrimary: Colors.white,
+            secondary: Colors.blue,
+            onSecondary: Colors.blue,
+            error: Colors.white,
+            onError: Colors.white,
+            background: Colors.white,
+            onBackground: Colors.white,
+            surface: Colors.white,
+            onSurface: Colors.white),
         textTheme: const TextTheme(
           bodyLarge: TextStyle(fontSize: 16.0, color: Colors.black),
           headlineLarge: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color.fromARGB(20, 255, 255, 255),
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white30
-        ),
+            backgroundColor: Color.fromARGB(20, 255, 255, 255),
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white30),
         useMaterial3: true,
       ),
       home: const LandingScreen(),
